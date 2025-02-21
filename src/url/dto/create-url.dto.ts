@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateUrlDto {
   @ApiProperty({ required: true, description: 'The original URL' })
+  @IsNotEmpty()
   originalUrl: string;
 
   @ApiProperty({
