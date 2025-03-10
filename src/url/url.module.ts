@@ -3,6 +3,7 @@ import { UrlService } from './url.service';
 import { UrlController } from './url.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ShortenUrlSchema } from './schema/url.schema';
+import { UrlCleanupService } from './url-cleanup.service';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { ShortenUrlSchema } from './schema/url.schema';
     ]),
   ],
   controllers: [UrlController],
-  providers: [UrlService],
+  providers: [UrlService, UrlCleanupService],
 })
 export class UrlModule {}

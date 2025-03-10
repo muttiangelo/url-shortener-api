@@ -12,10 +12,13 @@ export class ShortenUrl {
   shortUrl: string;
 
   @Prop()
-  customCode: string;
+  code: string;
 
-  @Prop()
+  @Prop({ default: () => new Date(Date.now() + 1 * 60 * 60 * 1000) })
   expirationDate: Date;
+
+  @Prop({ default: false })
+  isExpired: boolean
 }
 
 export const ShortenUrlSchema = SchemaFactory.createForClass(ShortenUrl);

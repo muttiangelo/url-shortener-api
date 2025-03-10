@@ -1,35 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { ShortenUrl } from './schema/url.schema';
 import { Model } from 'mongoose';
+import { CustomHttpException } from 'src/common/exceptions/custom-http.exception';
+import { UrlCodeGenerator } from 'src/common/utils/code-generator';
 
 @Injectable()
 export class UrlService {
   constructor(
     @InjectModel(ShortenUrl.name)
     private readonly shortenUrlModel: Model<ShortenUrl>,
-  ) {}
+  ) { }
 
-  async create(createUrlDto: CreateUrlDto): Promise<string> {
-    await this.shortenUrlModel.create({ ...createUrlDto });
-    return `This action adds a new url`;
+  async create(createUrlDto: CreateUrlDto): Promise<any> {
+    const existingUrl = await this.shortenUrlModel.findOne({ code: createUrlDto.customCode });
+
+    if (existingUrl && !existingUrl.isExpired) {
+      throw new CustomHttpException('409', 'Custom code already exists.', { createUrlDto });
+    }
+
+    const shortCode = createUrlDto.customCode || UrlCodeGenerator.generate();
+
+    const newUrl = new this.shortenUrlModel({
+      ...createUrlDto,
+      code: shortCode,
+    });
+
+    await newUrl.save();
+
+    return {
+      originalUrl: newUrl.originalUrl,
+      shortUrl: `${process.env.BASE_URL}/${shortCode}`,
+    };
   }
 
   async findAll() {
     return await this.shortenUrlModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} url`;
-  }
+  async getOriginalUrl(code: string) {
+    const promise = await this.shortenUrlModel.findOne({ code: code, isExpired: false }).exec();
 
-  update(id: number, updateUrlDto: UpdateUrlDto) {
-    return `This action updates a #${id} url`;
-  }
+    if(!promise) {
+      throw new CustomHttpException('409', 'URL not found', { customCode: code });
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} url`;
+    if (promise.isExpired) {
+      throw new CustomHttpException('410', 'This shortened URL has expired and is no longer available.', { customCode: code });
+    }
+
+    return { originalUrl: promise?.originalUrl };
   }
 }

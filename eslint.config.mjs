@@ -27,9 +27,35 @@ export default tseslint.config(
   },
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      // Typescript and general best practices
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-unsafe-argument': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+
+      // Prettier handled by eslint-plugin-prettier/recommended (so no need to explicitly list)
+
+      // Import order (good for NestJS projects)
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            ['parent', 'sibling', 'index'],
+          ],
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc', caseInsensitive: true },
+        },
+      ],
+
+      // Example NestJS-friendly adjustments
+      '@typescript-eslint/explicit-module-boundary-types': 'off',  // Nest doesn’t need this
+      '@typescript-eslint/explicit-function-return-type': 'off',
+
+      // Optional — stricter unused var rules
+      'no-unused-vars': 'off', // disable base rule (typescript-eslint covers it)
     },
   },
 );

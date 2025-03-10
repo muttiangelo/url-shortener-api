@@ -1,9 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsUrl } from 'class-validator';
 
 export class CreateUrlDto {
-  @ApiProperty({ required: true, description: 'The original URL' })
+  @ApiProperty({
+    required: true,
+    description:
+      'The original URL. /^(https?|http):\\/\\/[^\\s/$.?#].[^\\s]*$/i',
+  })
   @IsNotEmpty()
+  @IsUrl(
+    { protocols: ['http', 'https'] },
+    { message: 'The original URL must be a valid URL' },
+  )
   originalUrl: string;
 
   @ApiProperty({
@@ -13,12 +21,9 @@ export class CreateUrlDto {
   })
   customCode?: string;
 
-  @ApiProperty({ required: false, description: 'A nickname for this url' })
-  alias?: string;
-
   @ApiProperty({
     required: false,
-    description: 'The expiration date of the shortened URL',
+    description: 'The expiration date of the shortened URL. Default is 24 hours.',
   })
   expiresAt?: Date;
 }
