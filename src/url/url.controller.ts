@@ -33,6 +33,12 @@ export class UrlController {
   }
 
   @Get(':code')
+  @ApiOperation({ summary: 'Redirect to the original URL' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieves the original url.',
+  })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
   async redirect(@Param('code') code: string) {
     console.log(code);
     return await this.urlService.getOriginalUrl(code);

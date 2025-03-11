@@ -43,11 +43,7 @@ export class UrlService {
     const promise = await this.shortenUrlModel.findOne({ code: code, isExpired: false }).exec();
 
     if(!promise) {
-      throw new CustomHttpException('409', 'URL not found', { customCode: code });
-    }
-
-    if (promise.isExpired) {
-      throw new CustomHttpException('410', 'This shortened URL has expired and is no longer available.', { customCode: code });
+      throw new CustomHttpException('404', 'URL not found or has expired.', { customCode: code });
     }
 
     return { originalUrl: promise?.originalUrl };
